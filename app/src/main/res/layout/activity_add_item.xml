@@ -5,21 +5,23 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="kin.olivescript.com.kin.List">
+    tools:context="kin.olivescript.com.kin.addItem">
 
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="fill_parent"
+
+    <EditText
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true">
-    </ListView>
+        android:id="@+id/editText3"
+        android:layout_marginTop="65dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add"
-        android:onClick="addItem"
-        android:id="@+id/button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
-
+        android:onClick="addInput"
+        android:id="@+id/button2"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

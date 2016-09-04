@@ -1,10 +1,12 @@
 package kin.olivescript.com.kin;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -38,7 +40,10 @@ public class List extends AppCompatActivity {
         queue= Volley.newRequestQueue(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        username="sudaraka";
+        Bundle extras=getIntent().getExtras();
+        if(extras!=null){
+            username=extras.getString("login.username");
+        }
         itemList=new ArrayList<>();
         lv= (ListView) findViewById(R.id.list);
         new GetList().execute();
@@ -105,9 +110,8 @@ public class List extends AppCompatActivity {
     public void decode(String input) {
         synchronized (lockT) {
             try {
-                JSONObject jsonObject = new JSONObject(input);
                 //getting JSON Array node
-                JSONArray array = jsonObject.getJSONArray("list");
+                JSONArray array = new JSONArray(input);
                 for (int i = 0; i < array.length(); i++) {
                     try {
                         JSONObject item = array.getJSONObject(i);
@@ -127,5 +131,11 @@ public class List extends AppCompatActivity {
             Log.d("onResponce", "Running");
             lockT.notify();
         }
+    }
+
+    public void addItem(View v){
+        Intent intent1 = new Intent(this, addItem.class);
+        intent1.putExtra("login.username", username);
+        startActivity(intent1);
     }
 }

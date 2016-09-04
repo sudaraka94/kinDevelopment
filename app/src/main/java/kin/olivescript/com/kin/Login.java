@@ -2,10 +2,8 @@ package kin.olivescript.com.kin;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,14 +29,12 @@ public class Login extends AppCompatActivity {
     private String username;
     private String password;
     public Object lock1;
-private boolean volleyStatus;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         queue = Volley.newRequestQueue(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         lock1=new Object();
-        volleyStatus=false;
         Button loginBtn = (Button) findViewById(R.id.login_btn);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +43,8 @@ private boolean volleyStatus;
                 EditText pass = (EditText) findViewById(R.id.editText2);
                 username = user.getText().toString();
                 password = pass.getText().toString();
-                new loginAuthn().execute();
+                loginAuth(username,password);
+
             }
         });
     }
@@ -57,43 +55,43 @@ private boolean volleyStatus;
         startActivity(intent1);
     }
 
-    private class loginAuthn extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //showing progress dialog
-            pDialog = new ProgressDialog(Login.this);
-            pDialog.setMessage("Please Wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            loginAuth(username, password);
-            synchronized (lock1) {
-                while (!volleyStatus) {
-                    try {
-                        lock1.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void responce) {
-            super.onPostExecute(responce);
-            if (pDialog.isShowing()) {
-                pDialog.dismiss();
-                Log.d("onPostExecute", "Running");
-            }
-        }
-
-    }
+//    private class loginAuthn extends AsyncTask<Void, Void, Void> {
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            //showing progress dialog
+//            pDialog = new ProgressDialog(Login.this);
+//            pDialog.setMessage("Please Wait...");
+//            pDialog.setCancelable(false);
+//            pDialog.show();
+//
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Void... voids) {
+//            loginAuth(username, password);
+//            synchronized (lock1) {
+//                while (!volleyStatus) {
+//                    try {
+//                        lock1.wait();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void responce) {
+//            super.onPostExecute(responce);
+//            if (pDialog.isShowing()) {
+//                pDialog.dismiss();
+//                Log.d("onPostExecute", "Running");
+//            }
+//        }
+//
+//    }
 
 
     public void loginAuth(final String username,final String password){
@@ -103,32 +101,36 @@ private boolean volleyStatus;
                 new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            synchronized (lock1) {
-                                if (response.toString().equals("true ")) {
-                                    switchAct(username);
-                                    Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_LONG).show();
-                                } else {
+                            if(pDialog.isShowing()){
+                                pDialog.dismiss();
+                            }
+                            if (response.equals("true ")) {
+                                switchAct(username);
+                                Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_LONG).show();
+                            } else {
                                     Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
-                                }
-                                volleyStatus=true;
-                                lock1.notify();
                             }
                         }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(),error.toString(),Toast.LENGTH_LONG).show();
+                        pDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
                     }
                 })
         {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String> params=new HashMap<>();
-                params.put("pass",password);
+                Map<String, String> params = new HashMap<>();
+                params.put("pass", password);
                 return params;
             }
         };
+        pDialog = new ProgressDialog(Login.this);
+        pDialog.setMessage("Please Wait...");
+        pDialog.setCancelable(false);
+        pDialog.show();
         queue.add(strreq);
     }
 }
